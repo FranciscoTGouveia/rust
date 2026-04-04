@@ -2178,6 +2178,9 @@ impl<'a, 'b> InvocationCollector<'a, 'b> {
                 ShouldEmit::ErrorsAndLints { recovery: Recovery::Allowed },
             );
 
+            if attr.is_comment() {
+                continue;
+            }
             let current_span = if let Some(sp) = span { sp.to(attr.span) } else { attr.span };
             span = Some(current_span);
 
@@ -2501,7 +2504,7 @@ impl<'a, 'b> MutVisitor for InvocationCollector<'a, 'b> {
 
     fn visit_expr(&mut self, node: &mut ast::Expr) {
         // FIXME: Feature gating is performed inconsistently between `Expr` and `OptExpr`.
-        if let Some(attr) = node.attrs.first() {
+        if let Some(attr) = node.attrs.iter().find(|a| !a.is_comment()) {
             self.cfg().maybe_emit_expr_attr_err(attr);
         }
         ensure_sufficient_stack(|| self.visit_node(node))

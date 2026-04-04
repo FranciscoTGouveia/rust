@@ -3667,7 +3667,7 @@ fn search_for_any_use_in_items(items: &[Box<ast::Item>]) -> Option<Span> {
         {
             let mut lo = item.span.lo();
             for attr in &item.attrs {
-                if attr.span.eq_ctxt(item.span) {
+                if !attr.is_comment() && attr.span.eq_ctxt(item.span) {
                     lo = std::cmp::min(lo, attr.span.lo());
                 }
             }

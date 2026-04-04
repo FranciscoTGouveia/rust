@@ -654,6 +654,9 @@ pub trait PrintState<'a>: std::ops::Deref<Target = pp::Printer> + std::ops::Dere
     ) -> bool {
         let mut printed = false;
         for attr in attrs {
+            if attr.is_comment() {
+                continue;
+            }
             if attr.style == kind {
                 if self.print_attribute_inline(attr, is_inline) {
                     if is_inline {
