@@ -1,7 +1,7 @@
 use rustc_ast as ast;
 use rustc_ast::token::{self, CommentKind, MetaVarKind};
 use rustc_ast::tokenstream::ParserRange;
-use rustc_ast::{AttrItemKind, Attribute, attr};
+use rustc_ast::{AttrItemKind, attr};
 use rustc_errors::codes::*;
 use rustc_errors::{Diag, PResult, msg};
 use rustc_span::{BytePos, Span};
@@ -75,7 +75,8 @@ impl<'a> Parser<'a> {
 
         loop {
             let attr = if self.check(exp!(Pound)) {
-                let prev_outer_attr_sp = outer_attrs.last().map(|attr: &Attribute| attr.span);
+                let prev_outer_attr_sp =
+                    outer_attrs.iter().filter(|a| !a.is_comment()).last().map(|attr| attr.span);
 
                 let inner_error_reason = if just_parsed_doc_comment {
                     Some(InnerAttrForbiddenReason::AfterOuterDocComment {

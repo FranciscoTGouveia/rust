@@ -264,7 +264,7 @@ impl<'a, 'ra, 'tcx> Visitor<'a> for UnusedImportCheckVisitor<'a, 'ra, 'tcx> {
                     span: item.span,
                     vis_span: item.vis.span,
                     span_with_attributes: item.span_with_attributes(),
-                    has_attrs: !item.attrs.is_empty(),
+                    has_attrs: item.attrs.iter().any(|a| !a.is_comment()),
                     ident,
                     renames: orig_name.is_some(),
                 });

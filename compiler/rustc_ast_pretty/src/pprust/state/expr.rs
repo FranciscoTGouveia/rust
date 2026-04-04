@@ -571,7 +571,7 @@ impl<'a> State<'a> {
                 for arm in arms {
                     self.print_arm(arm);
                 }
-                let empty = attrs.is_empty() && arms.is_empty();
+                let empty = attrs.iter().all(|a| a.is_comment()) && arms.is_empty();
                 self.bclose(expr.span, empty, cb);
             }
             ast::ExprKind::Closure(box ast::Closure {
@@ -882,7 +882,7 @@ impl<'a> State<'a> {
 
     fn print_arm(&mut self, arm: &ast::Arm) {
         // Note, I have no idea why this check is necessary, but here it is.
-        if arm.attrs.is_empty() {
+        if arm.attrs.iter().all(|a| a.is_comment()) {
             self.space();
         }
         let cb = self.cbox(INDENT_UNIT);

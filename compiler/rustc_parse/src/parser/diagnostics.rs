@@ -826,10 +826,11 @@ impl<'a> Parser<'a> {
             unexpected_token_label: Some(self.token.span),
             sugg: ExpectedSemiSugg::AddSemi(span),
         });
-        let attr_span = match &expr.attrs[..] {
+        let non_comment_attrs: Vec<_> = expr.attrs.iter().filter(|a| !a.is_comment()).collect();
+        let attr_span = match non_comment_attrs[..] {
             [] => unreachable!(),
             [only] => only.span,
-            [first, rest @ ..] => {
+            [first, ref rest @ ..] => {
                 for attr in rest {
                     err.span_label(attr.span, "");
                 }
@@ -840,7 +841,7 @@ impl<'a> Parser<'a> {
             attr_span,
             format!(
                 "only `;` terminated statements or tail expressions are allowed after {}",
-                if expr.attrs.len() == 1 { "this attribute" } else { "these attributes" },
+                if non_comment_attrs.len() == 1 { "this attribute" } else { "these attributes" },
             ),
         );
         if self.token == token::Pound && self.look_ahead(1, |t| *t == token::OpenBracket) {

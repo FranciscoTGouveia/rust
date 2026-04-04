@@ -255,7 +255,7 @@ impl<'a> State<'a> {
                         for item in items {
                             self.print_item(item);
                         }
-                        let empty = item.attrs.is_empty() && items.is_empty();
+                        let empty = item.attrs.iter().all(|a| a.is_comment()) && items.is_empty();
                         self.bclose(item.span, empty, cb);
                     }
                     ModKind::Unloaded => {
@@ -276,7 +276,7 @@ impl<'a> State<'a> {
                 }
                 self.bopen(ib);
                 self.print_foreign_mod(nmod, &item.attrs);
-                let empty = item.attrs.is_empty() && nmod.items.is_empty();
+                let empty = item.attrs.iter().all(|a| a.is_comment()) && nmod.items.is_empty();
                 self.bclose(item.span, empty, cb);
             }
             ast::ItemKind::GlobalAsm(asm) => {
@@ -358,7 +358,7 @@ impl<'a> State<'a> {
                 for impl_item in items {
                     self.print_assoc_item(impl_item);
                 }
-                let empty = item.attrs.is_empty() && items.is_empty();
+                let empty = item.attrs.iter().all(|a| a.is_comment()) && items.is_empty();
                 self.bclose(item.span, empty, cb);
             }
             ast::ItemKind::Trait(box ast::Trait {
@@ -391,7 +391,7 @@ impl<'a> State<'a> {
                 for trait_item in items {
                     self.print_assoc_item(trait_item);
                 }
-                let empty = item.attrs.is_empty() && items.is_empty();
+                let empty = item.attrs.iter().all(|a| a.is_comment()) && items.is_empty();
                 self.bclose(item.span, empty, cb);
             }
             ast::ItemKind::TraitAlias(box TraitAlias { constness, ident, generics, bounds }) => {
