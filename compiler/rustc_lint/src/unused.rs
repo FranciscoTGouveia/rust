@@ -273,7 +273,9 @@ trait UnusedDelimLint {
             ast::ExprKind::Block(ref block, None) if let [stmt] = block.stmts.as_slice() => {
                 // For the statements with attributes, like `{ #[allow()] println!("Hello!") }`,
                 // the span should contains the attributes, or the suggestion will remove them.
-                if let Some(attr_lo) = stmt.attrs().iter().map(|attr| attr.span.lo()).min() {
+                if let Some(attr_lo) =
+                    stmt.attrs().iter().filter(|a| !a.is_comment()).map(|attr| attr.span.lo()).min()
+                {
                     stmt.span.with_lo(attr_lo)
                 } else {
                     stmt.span
@@ -282,7 +284,9 @@ trait UnusedDelimLint {
             ast::ExprKind::Paren(ref expr) => {
                 // For the expr with attributes, like `let _ = (#[inline] || println!("Hello!"));`,
                 // the span should contains the attributes, or the suggestion will remove them.
-                if let Some(attr_lo) = expr.attrs.iter().map(|attr| attr.span.lo()).min() {
+                if let Some(attr_lo) =
+                    expr.attrs.iter().filter(|a| !a.is_comment()).map(|attr| attr.span.lo()).min()
+                {
                     expr.span.with_lo(attr_lo)
                 } else {
                     expr.span
@@ -596,7 +600,7 @@ impl UnusedDelimLint for UnusedParens {
         match value.kind {
             ast::ExprKind::Paren(ref inner) => {
                 if !Self::is_expr_delims_necessary(inner, ctx, followed_by_block)
-                    && value.attrs.is_empty()
+                    && value.attrs.iter().all(|a| a.is_comment())
                     && !value.span.from_expansion()
                     && (ctx != UnusedDelimsCtx::LetScrutineeExpr
                         || !matches!(inner.kind, ast::ExprKind::Binary(
@@ -1030,7 +1034,7 @@ impl UnusedDelimLint for UnusedBraces {
                             && !expr.span.from_expansion()))
                     && ctx != UnusedDelimsCtx::ClosureBody
                     && !cx.sess().source_map().is_multiline(value.span)
-                    && value.attrs.is_empty()
+                    && value.attrs.iter().all(|a| a.is_comment())
                     && !value.span.from_expansion()
                     && !inner.span.from_expansion()
                 {

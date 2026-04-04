@@ -768,6 +768,9 @@ impl<'v> ast_visit::Visitor<'v> for StatCollector<'v> {
     }
 
     fn visit_attribute(&mut self, attr: &'v ast::Attribute) {
+        if attr.is_comment() {
+            return;
+        }
         record_variants!(
             (self, attr, attr.kind, None, ast, Attribute, AttrKind),
             [Normal, DocComment, Comment]

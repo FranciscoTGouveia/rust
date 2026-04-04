@@ -3652,7 +3652,7 @@ pub struct Item<K = ItemKind> {
 impl Item {
     /// Return the span that encompasses the attributes.
     pub fn span_with_attributes(&self) -> Span {
-        self.attrs.iter().fold(self.span, |acc, attr| acc.to(attr.span))
+        self.attrs.iter().filter(|a| !a.is_comment()).fold(self.span, |acc, attr| acc.to(attr.span))
     }
 
     pub fn opt_generics(&self) -> Option<&Generics> {
