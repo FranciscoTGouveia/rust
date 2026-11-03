@@ -231,6 +231,7 @@ impl<'a> Parser<'a> {
         ty_generics: Option<&Generics>,
     ) -> PResult<'a, ()> {
         loop {
+            let segment_lo = self.token.span;
             let segment = self.parse_path_segment(style, ty_generics)?;
             if style.has_generic_ambiguity() {
                 // In order to check for trailing angle brackets, we must have finished
@@ -251,7 +252,7 @@ impl<'a> Parser<'a> {
                 // this invariant.
                 self.check_trailing_angle_brackets(&segment, &[exp!(PathSep)]);
             }
-            self.chain_span(segment.span());
+            self.chain_span(segment_lo.to(self.prev_token.span));
             segments.push(segment);
 
             if self.is_import_coupler() || !self.eat_path_sep() {
